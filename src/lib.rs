@@ -39,7 +39,7 @@
 //! use bevy::prelude::*;
 //! use bevy_steamworks::*;
 //!
-//! fn steam_system(steam_client: Res<Client>) {
+//! fn steam_system(steam_client: Res<SteamworksClient>) {
 //!   for friend in steam_client.friends().get_friends(FriendFlags::IMMEDIATE) {
 //!     println!("Friend: {:?} - {}({:?})", friend.id(), friend.name(), friend.state());
 //!   }
@@ -152,9 +152,9 @@ macro_rules! register_event_callbacks {
 ///
 /// For more information on how to use it, see [`steamworks::Client`].
 #[derive(Resource, Clone)]
-pub struct Client(steamworks::Client);
+pub struct SteamworksClient(steamworks::Client);
 
-impl Deref for Client {
+impl Deref for SteamworksClient {
     type Target = steamworks::Client;
     fn deref(&self) -> &Self::Target {
         &self.0
