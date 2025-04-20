@@ -25,11 +25,11 @@
 //! }
 //! ```
 //!
-//! The plugin adds `Client` as a Bevy ECS resource, which can be
+//! The plugin adds `SteamworksClient` as a Bevy ECS resource, which can be
 //! accessed like any other resource in Bevy. The client implements `Send` and `Sync`
 //! and can be used to make requests via the SDK from any of Bevy's threads.
 //!
-//! The plugin will automatically call `SingleClient::run_callbacks` on the Bevy
+//! The plugin will automatically call `Client::run_callbacks` on the Bevy
 //! every tick in the `First` schedule, so there is no need to run it manually.  
 //!
 //! All callbacks are forwarded as `Events` and can be listened to in the a
@@ -68,7 +68,7 @@ use bevy_ecs::{
     schedule::*,
     system::{Res, ResMut, Resource},
 };
-use bevy_utils::{synccell::SyncCell, syncunsafecell::SyncUnsafeCell};
+use bevy_utils::syncunsafecell::SyncUnsafeCell;
 // Reexport everything from steamworks except for the clients
 pub use steamworks::{
     networking_messages, networking_sockets, networking_utils, restart_app_if_necessary, AccountId,
@@ -79,9 +79,9 @@ pub use steamworks::{
     FriendGame, FriendState, Friends, GameId, GameLobbyJoinRequested, GameOverlayActivated,
     GamepadTextInputDismissed, GamepadTextInputLineMode, GamepadTextInputMode, Input, InstallInfo,
     InvalidErrorCode, ItemState, Leaderboard, LeaderboardDataRequest, LeaderboardDisplayType,
-    LeaderboardEntry, LeaderboardScoreUploaded, LeaderboardSortMethod, LobbyChatUpdate,
-    LobbyDataUpdate, LobbyId, LobbyKey, LobbyKeyTooLongError, LobbyListFilter, LobbyType, Manager,
-    Matchmaking, MicroTxnAuthorizationResponse, NearFilter, NearFilters, Networking,
+    LeaderboardEntry, LeaderboardScoreUploaded, LeaderboardSortMethod, LobbyChatMsg, LobbyChatUpdate, 
+    LobbyCreated, LobbyDataUpdate, LobbyId, LobbyKey, LobbyKeyTooLongError, LobbyListFilter, LobbyType, 
+    Manager, Matchmaking, MicroTxnAuthorizationResponse, NearFilter, NearFilters, Networking,
     NotificationPosition, NumberFilter, NumberFilters, OverlayToStoreFlag, P2PSessionConnectFail,
     P2PSessionRequest, PersonaChange, PersonaStateChange, PublishedFileId, PublishedFileVisibility,
     QueryHandle, QueryResult, QueryResults, RemotePlay, RemotePlayConnected,
@@ -108,7 +108,10 @@ pub enum SteamworksEvent {
     AuthSessionTicketResponse(steamworks::AuthSessionTicketResponse),
     DownloadItemResult(steamworks::DownloadItemResult),
     GameLobbyJoinRequested(steamworks::GameLobbyJoinRequested),
+    LobbyEnter(steamworks::LobbyEnter),
+    LobbyChatMsg(steamworks::LobbyChatMsg),
     LobbyChatUpdate(steamworks::LobbyChatUpdate),
+    LobbyCreated(steamworks::LobbyCreated),
     P2PSessionConnectFail(steamworks::P2PSessionConnectFail),
     P2PSessionRequest(steamworks::P2PSessionRequest),
     PersonaStateChange(steamworks::PersonaStateChange),
@@ -161,12 +164,9 @@ impl Deref for SteamworksClient {
     }
 }
 
-#[derive(Resource)]
-struct SingleClient(SyncCell<steamworks::SingleClient>);
-
 /// A Bevy [`Plugin`] for adding support for the Steam SDK.
 pub struct SteamworksPlugin {
-    steam: Mutex<Option<(steamworks::Client, steamworks::SingleClient)>>,
+    steam: Mutex<Option<steamworks::Client>>,
 }
 
 impl SteamworksPlugin {
@@ -191,21 +191,23 @@ impl SteamworksPlugin {
 
 impl Plugin for SteamworksPlugin {
     fn build(&self, app: &mut App) {
-        let (client, single) = self
+        let client = self
             .steam
             .lock()
             .unwrap()
             .take()
             .expect("The SteamworksPlugin was initialized more than once");
 
-        app.insert_resource(Client(client.clone()))
-            .insert_resource(SingleClient(SyncCell::new(single)))
+        app.insert_resource(SteamworksClient(client.clone()))
             .insert_resource(register_event_callbacks!(
                 client,
                 AuthSessionTicketResponse,
                 DownloadItemResult,
                 GameLobbyJoinRequested,
+                LobbyEnter,
+                LobbyChatMsg,
                 LobbyChatUpdate,
+                LobbyCreated,
                 P2PSessionConnectFail,
                 P2PSessionRequest,
                 PersonaStateChange,
@@ -241,11 +243,11 @@ pub enum SteamworksSystem {
 }
 
 fn run_steam_callbacks(
-    mut client: ResMut<SingleClient>,
+    client: ResMut<SteamworksClient>,
     events: Res<SteamEvents>,
     mut output: EventWriter<SteamworksEvent>,
 ) {
-    client.0.get().run_callbacks();
+    client.0.run_callbacks();
     // SAFETY: The callback is only called during `run_steam_callbacks` which cannot run
     // while any of the flush_events systems are running. The system is registered only once for
     // the client. This cannot alias.
