@@ -20,3 +20,4 @@ bevy_utils = "0.16"
 steamworks = { path = "../steamworks-rs" }
 
 [dev-dependencies]
+bevy = "0.16"
