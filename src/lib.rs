@@ -30,7 +30,7 @@
 //! and can be used to make requests via the SDK from any of Bevy's threads.
 //!
 //! The plugin will automatically call `Client::run_callbacks` on
-//! every tick in the `First` schedule, so there is no need to run it manually.  
+//! every tick in the `First` schedule, so there is no need to run it manually.
 //!
 //! All callbacks are forwarded as `Events` and can be listened to in the a
 //! Bevy idiomatic way:
@@ -72,21 +72,21 @@ use bevy_utils::syncunsafecell::SyncUnsafeCell;
 // Reexport everything from steamworks except for the clients
 use steamworks::networking_types::NetConnectionStatusChanged;
 pub use steamworks::{
-    networking_messages, networking_sockets, networking_types, networking_utils, 
-    restart_app_if_necessary, stats, AccountId, AppIDs, AppId, Apps, AuthSessionError, 
-    AuthSessionTicketResponse, AuthSessionValidateError, AuthTicket, Callback, CallbackHandle, 
-    ChatMemberStateChange, ClientManager, ComparisonFilter, CreateQueryError, DistanceFilter, 
-    DownloadItemResult, FileType, FloatingGamepadTextInputDismissed, FloatingGamepadTextInputMode, 
-    Friend, FriendFlags, FriendGame, FriendState, Friends, GameId, GameLobbyJoinRequested, 
-    GameOverlayActivated, GamepadTextInputDismissed, GamepadTextInputLineMode, 
-    GamepadTextInputMode, Input, InstallInfo, InvalidErrorCode, ItemState, Leaderboard, 
-    LeaderboardDataRequest, LeaderboardDisplayType, LeaderboardEntry, LeaderboardScoreUploaded, 
-    LeaderboardSortMethod, LobbyChatMsg, LobbyChatUpdate, LobbyCreated, LobbyDataUpdate, LobbyEnter, 
-    LobbyId, LobbyKey, LobbyKeyTooLongError, LobbyListFilter, LobbyType, Manager, Matchmaking, 
-    MicroTxnAuthorizationResponse, NearFilter, NearFilters, Networking, NotificationPosition, 
-    NumberFilter, NumberFilters, OverlayToStoreFlag, P2PSessionConnectFail, P2PSessionRequest, 
-    PersonaChange, PersonaStateChange, PublishedFileId, PublishedFileVisibility, QueryHandle, 
-    QueryResult, QueryResults, RemotePlay, RemotePlayConnected, RemotePlayDisconnected, 
+    networking_messages, networking_sockets, networking_types, networking_utils,
+    restart_app_if_necessary, stats, AccountId, AppIDs, AppId, Apps, AuthSessionError,
+    AuthSessionTicketResponse, AuthSessionValidateError, AuthTicket, Callback, CallbackHandle,
+    ChatMemberStateChange, ClientManager, ComparisonFilter, CreateQueryError, DistanceFilter,
+    DownloadItemResult, FileType, FloatingGamepadTextInputDismissed, FloatingGamepadTextInputMode,
+    Friend, FriendFlags, FriendGame, FriendState, Friends, GameId, GameLobbyJoinRequested,
+    GameOverlayActivated, GamepadTextInputDismissed, GamepadTextInputLineMode,
+    GamepadTextInputMode, Input, InstallInfo, InvalidErrorCode, ItemState, Leaderboard,
+    LeaderboardDataRequest, LeaderboardDisplayType, LeaderboardEntry, LeaderboardScoreUploaded,
+    LeaderboardSortMethod, LobbyChatMsg, LobbyChatUpdate, LobbyCreated, LobbyDataUpdate, LobbyEnter,
+    LobbyId, LobbyKey, LobbyKeyTooLongError, LobbyListFilter, LobbyType, Manager, Matchmaking,
+    MicroTxnAuthorizationResponse, NearFilter, NearFilters, Networking, NotificationPosition,
+    NumberFilter, NumberFilters, OverlayToStoreFlag, P2PSessionConnectFail, P2PSessionRequest,
+    PersonaChange, PersonaStateChange, PublishedFileId, PublishedFileVisibility, QueryHandle,
+    QueryResult, QueryResults, RemotePlay, RemotePlayConnected, RemotePlayDisconnected,
     RemotePlaySession, RemotePlaySessionId, RemoteStorage, SIResult, SResult, SendType, Server,
     ServerManager, ServerMode, SteamAPIInitError, SteamDeviceFormFactor, SteamError, SteamFile,
     SteamFileInfo, SteamFileReader, SteamFileWriter, SteamId, SteamServerConnectFailure,
