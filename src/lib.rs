@@ -97,34 +97,6 @@ pub use steamworks::{
     ValidateAuthTicketResponse, RESULTS_PER_PAGE, UGC,
 };
 
-// // Reexport everything from steamworks except for the clients
-// use steamworks::networking_types::NetConnectionStatusChanged;
-// pub use steamworks::{
-//     networking_messages, networking_sockets, networking_types, networking_utils,
-//     restart_app_if_necessary, stats, AccountId, AppIDs, AppId, Apps, AuthSessionError,
-//     AuthSessionTicketResponse, AuthSessionValidateError, AuthTicket, Callback, CallbackHandle,
-//     ChatMemberStateChange, ClientManager, ComparisonFilter, CreateQueryError, DistanceFilter,
-//     DownloadItemResult, FileType, FloatingGamepadTextInputDismissed, FloatingGamepadTextInputMode,
-//     Friend, FriendFlags, FriendGame, FriendState, Friends, GameId, GameLobbyJoinRequested,
-//     GameOverlayActivated, GamepadTextInputDismissed, GamepadTextInputLineMode,
-//     GamepadTextInputMode, Input, InstallInfo, InvalidErrorCode, ItemState, Leaderboard,
-//     LeaderboardDataRequest, LeaderboardDisplayType, LeaderboardEntry, LeaderboardScoreUploaded,
-//     LeaderboardSortMethod, LobbyChatUpdate, LobbyDataUpdate, LobbyId, LobbyKey,
-//     LobbyKeyTooLongError, LobbyListFilter, LobbyType, Manager, Matchmaking,
-//     MicroTxnAuthorizationResponse, NearFilter, NearFilters, Networking, NotificationPosition,
-//     NumberFilter, NumberFilters, OverlayToStoreFlag, P2PSessionConnectFail, P2PSessionRequest,
-//     PersonaChange, PersonaStateChange, PublishedFileId, PublishedFileVisibility, QueryHandle,
-//     QueryResult, QueryResults, RemotePlay, RemotePlayConnected, RemotePlayDisconnected,
-//     RemotePlaySession, RemotePlaySessionId, RemoteStorage, SIResult, SResult, SendType, Server,
-//     ServerManager, ServerMode, SteamAPIInitError, SteamDeviceFormFactor, SteamError, SteamFile,
-//     SteamFileInfo, SteamFileReader, SteamFileWriter, SteamId, SteamServerConnectFailure,
-//     SteamServersConnected, SteamServersDisconnected, StringFilter, StringFilterKind, StringFilters,
-//     TicketForWebApiResponse, UGCContentDescriptorID, UGCQueryType, UGCStatisticType, UGCType,
-//     UpdateHandle, UpdateStatus, UpdateWatchHandle, UploadScoreMethod, User, UserAchievementStored,
-//     UserList, UserListOrder, UserRestriction, UserStats, UserStatsReceived, UserStatsStored, Utils,
-//     ValidateAuthTicketResponse, RESULTS_PER_PAGE, UGC,
-// };
-
 /// A Bevy-compatible wrapper around various Steamworks events.
 #[derive(Event)]
 #[allow(missing_docs)]
