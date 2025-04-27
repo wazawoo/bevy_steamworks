@@ -88,7 +88,7 @@ pub use steamworks::{
     PersonaChange, PersonaStateChange, PublishedFileId, PublishedFileVisibility, QueryHandle,
     QueryResult, QueryResults, RemotePlay, RemotePlayConnected, RemotePlayDisconnected,
     RemotePlaySession, RemotePlaySessionId, RemoteStorage, SIResult, SResult, SendType, Server,
-    ServerManager, ServerMode, SteamAPIInitError, SteamDeviceFormFactor, SteamError, SteamFile,
+    ServerMode, SteamAPIInitError, SteamDeviceFormFactor, SteamError, SteamFile,
     SteamFileInfo, SteamFileReader, SteamFileWriter, SteamId, SteamServerConnectFailure,
     SteamServersConnected, SteamServersDisconnected, StringFilter, StringFilterKind, StringFilters,
     TicketForWebApiResponse, UGCContentDescriptorID, UGCQueryType, UGCStatisticType, UGCType,
