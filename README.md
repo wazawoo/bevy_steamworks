@@ -44,11 +44,11 @@ fn main() {
 }
 ```
 
-The plugin adds `Client` as a Bevy ECS resource, which can be
+The plugin adds `SteamworksClient` as a Bevy ECS resource, which can be
 accessed like any other resource in Bevy. The client implements `Send` and `Sync`
 and can be used to make requests via the SDK from any of Bevy's threads.
 
-The plugin will automatically call `SingleClient::run_callbacks` on the Bevy
+The plugin will automatically call `Client::run_callbacks` on the Bevy
 every tick in the `First` schedule, so there is no need to run it manually.
 
 All callbacks are forwarded as `Events` and can be listened to in a
@@ -58,7 +58,7 @@ Bevy idiomatic way:
 use bevy::prelude::*;
 use bevy_steamworks::*;
 
-fn steam_system(steam_client: Res<Client>) {
+fn steam_system(steam_client: Res<SteamworksClient>) {
   for friend in steam_client.friends().get_friends(FriendFlags::IMMEDIATE) {
     println!("Friend: {:?} - {}({:?})", friend.id(), friend.name(), friend.state());
   }
