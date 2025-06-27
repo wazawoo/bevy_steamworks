@@ -17,7 +17,7 @@ bevy_log = "0.16"
 bevy_app = "0.16"
 bevy_ecs = "0.16"
 bevy_utils = "0.16"
-steamworks = { path = "../steamworks-rs" }
+steamworks = "0.12.0"
 
 [dev-dependencies]
 bevy = "0.16"
