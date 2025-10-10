@@ -58,24 +58,22 @@
 
 use std::{
     ops::Deref,
-    sync::{Arc, Mutex},
+    sync::{Mutex},
 };
 
 use bevy_app::{App, First, Plugin};
 use bevy_ecs::{
-    event::EventWriter,
-    prelude::{Event, Resource},
+    message::Message,
+    prelude::{MessageWriter, Resource},
     schedule::*,
     system::ResMut,
 };
-use bevy_utils::syncunsafecell::SyncUnsafeCell;
-// Reexport everything from steamworks except for the clients
-use steamworks::networking_types::NetConnectionStatusChanged;
+
 pub use steamworks::{
     networking_messages, networking_sockets, networking_types, networking_utils,
     restart_app_if_necessary, stats, AccountId, AppIDs, AppId, Apps, AuthSessionError,
     AuthSessionTicketResponse, AuthSessionValidateError, AuthTicket, Callback, CallbackHandle,
-    ChatMemberStateChange, ComparisonFilter, CreateQueryError, DistanceFilter,
+    CallbackResult, ChatMemberStateChange, ComparisonFilter, CreateQueryError, DistanceFilter,
     DownloadItemResult, FileType, FloatingGamepadTextInputDismissed, FloatingGamepadTextInputMode,
     Friend, FriendFlags, FriendGame, FriendState, Friends, GameId, GameLobbyJoinRequested,
     GameOverlayActivated, GamepadTextInputDismissed, GamepadTextInputLineMode,
@@ -98,66 +96,10 @@ pub use steamworks::{
 };
 
 /// A Bevy-compatible wrapper around various Steamworks events.
-#[derive(Event)]
+#[derive(Message, Debug)]
 #[allow(missing_docs)]
 pub enum SteamworksEvent {
-    AuthSessionTicketResponse(AuthSessionTicketResponse),
-    DownloadItemResult(DownloadItemResult),
-    FloatingGamepadTextInputDismissed(FloatingGamepadTextInputDismissed),
-    GameLobbyJoinRequested(GameLobbyJoinRequested),
-    GameOverlayActivated(GameOverlayActivated),
-    GamepadTextInputDismissed(GamepadTextInputDismissed),
-    GameRichPresenceJoinRequested(GameRichPresenceJoinRequested),
-    LobbyChatMsg(LobbyChatMsg),
-    LobbyChatUpdate(LobbyChatUpdate),
-    LobbyCreated(LobbyCreated),
-    LobbyDataUpdate(LobbyDataUpdate),
-    LobbyEnter(LobbyEnter),
-    LobbyGameCreated(LobbyGameCreated),
-    MicroTxnAuthorizationResponse(MicroTxnAuthorizationResponse),
-    NetConnectionStatusChanged(NetConnectionStatusChanged),
-    P2PSessionConnectFail(P2PSessionConnectFail),
-    P2PSessionRequest(P2PSessionRequest),
-    PersonaStateChange(PersonaStateChange),
-    RemotePlayConnected(RemotePlayConnected),
-    RemotePlayDisconnected(RemotePlayDisconnected),
-    SteamServerConnectFailure(SteamServerConnectFailure),
-    SteamServersConnected(SteamServersConnected),
-    SteamServersDisconnected(SteamServersDisconnected),
-    TicketForWebApiResponse(TicketForWebApiResponse),
-    UserAchievementStored(UserAchievementStored),
-    UserStatsReceived(UserStatsReceived),
-    UserStatsStored(UserStatsStored),
-    ValidateAuthTicketResponse(ValidateAuthTicketResponse),
-}
-
-#[derive(Resource)]
-struct SteamworksState {
-    _callbacks: Vec<CallbackHandle>,
-    pending: Arc<SyncUnsafeCell<Vec<SteamworksEvent>>>,
-}
-
-macro_rules! register_event_callbacks {
-    ($client: ident, $($event_name: ident),+) => {
-        {
-            let pending = Arc::new(SyncUnsafeCell::new(Vec::new()));
-            SteamworksState {
-                _callbacks: vec![
-                    $({
-                        let pending_in = pending.clone();
-                        $client.register_callback::<$event_name, _>(move |evt| {
-                            // SAFETY: The callback is only called during `run_steam_callbacks` which cannot run
-                            // while any of the flush_events systems are running. This cannot alias.
-                            unsafe {
-                                (&mut *pending_in.get()).push(SteamworksEvent::$event_name(evt));
-                            }
-                        })
-                    }),+
-                ],
-                pending,
-            }
-        }
-    };
+    CallbackResult(CallbackResult),
 }
 
 /// A Bevy compatible wrapper around [`steamworks::Client`].
@@ -211,43 +153,13 @@ impl Plugin for SteamworksPlugin {
             .expect("The SteamworksPlugin was initialized more than once");
 
         app.insert_resource(SteamworksClient(client.clone()))
-            .insert_resource(register_event_callbacks!(
-                client,
-                AuthSessionTicketResponse,
-                DownloadItemResult,
-                FloatingGamepadTextInputDismissed,
-                GameLobbyJoinRequested,
-                GameOverlayActivated,
-                GamepadTextInputDismissed,
-                LobbyChatMsg,
-                LobbyChatUpdate,
-                LobbyCreated,
-                LobbyDataUpdate,
-                LobbyEnter,
-                LobbyGameCreated,
-                MicroTxnAuthorizationResponse,
-                NetConnectionStatusChanged,
-                P2PSessionConnectFail,
-                P2PSessionRequest,
-                PersonaStateChange,
-                RemotePlayConnected,
-                RemotePlayDisconnected,
-                SteamServerConnectFailure,
-                SteamServersConnected,
-                SteamServersDisconnected,
-                TicketForWebApiResponse,
-                UserAchievementStored,
-                UserStatsReceived,
-                UserStatsStored,
-                ValidateAuthTicketResponse
-            ))
-            .add_event::<SteamworksEvent>()
+            .add_message::<SteamworksEvent>()
             .configure_sets(First, SteamworksSystem::RunCallbacks)
             .add_systems(
                 First,
                 run_steam_callbacks
                     .in_set(SteamworksSystem::RunCallbacks)
-                    .before(bevy_ecs::event::EventUpdates),
+                    .before(bevy_ecs::message::MessageUpdateSystems),
             );
     }
 }
@@ -265,15 +177,9 @@ pub enum SteamworksSystem {
 
 fn run_steam_callbacks(
     client: ResMut<SteamworksClient>,
-    state: ResMut<SteamworksState>,
-    mut output: EventWriter<SteamworksEvent>,
+    mut output: MessageWriter<SteamworksEvent>,
 ) {
-    client.0.run_callbacks();
-    // SAFETY: The callback is only called during `run_steam_callbacks` which cannot run
-    // while any of the flush_events systems are running. The system is registered only once for
-    // the client. This cannot alias.
-    let pending = unsafe { &mut *state.pending.get() };
-    if !pending.is_empty() {
-        output.write_batch(pending.drain(0..));
-    }
+    client.process_callbacks(|callback| {
+        output.write(SteamworksEvent::CallbackResult(callback));
+    });
 }
