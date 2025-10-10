@@ -1,4 +1,5 @@
 #![deny(missing_docs)]
+#![forbid(unsafe_code)]
 
 //! This crate provides a [Bevy](https://bevyengine.org/) plugin for integrating with
 //! the Steamworks SDK.
@@ -56,19 +57,17 @@
 //! }
 //! ```
 
-use std::{
-    ops::Deref,
-    sync::{Mutex},
-};
+use std::{ops::Deref, sync::Mutex};
 
 use bevy_app::{App, First, Plugin};
 use bevy_ecs::{
     message::Message,
     prelude::{MessageWriter, Resource},
-    schedule::*,
-    system::ResMut,
+    schedule::{IntoScheduleConfigs, SystemSet},
+    system::Res,
 };
 
+// Reexport everything from steamworks except for the clients
 pub use steamworks::{
     networking_messages, networking_sockets, networking_types, networking_utils,
     restart_app_if_necessary, stats, AccountId, AppIDs, AppId, Apps, AuthSessionError,
