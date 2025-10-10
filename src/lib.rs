@@ -175,7 +175,7 @@ pub enum SteamworksSystem {
 }
 
 fn run_steam_callbacks(
-    client: ResMut<SteamworksClient>,
+    client: Res<SteamworksClient>,
     mut output: MessageWriter<SteamworksEvent>,
 ) {
     client.process_callbacks(|callback| {
