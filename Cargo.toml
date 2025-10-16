@@ -18,7 +18,7 @@ bevy_log = "0.17.2"
 bevy_utils = "0.17.2"
 bevy_app = { version = "0.17.2", default-features = false }
 bevy_ecs = { version = "0.17.2", default-features = false }
-steamworks = { path = "../steamworks-rs" }
+steamworks = { git = "https://github.com/wazawoo/steamworks-rs", branch = "progresso", features = ["serde"] }
 
 [dev-dependencies]
 bevy = "0.17.2"
