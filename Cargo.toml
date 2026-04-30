@@ -13,12 +13,12 @@ default = []
 serde = ["steamworks/serde"]
 
 [dependencies]
-bevy = "0.17.2"
-bevy_log = "0.17.2"
-bevy_utils = "0.17.2"
-bevy_app = { version = "0.17.2", default-features = false }
-bevy_ecs = { version = "0.17.2", default-features = false }
+bevy = "0.18.1"
+bevy_log = "0.18.1"
+bevy_utils = "0.18.1"
+bevy_app = { version = "0.18.1", default-features = false }
+bevy_ecs = { version = "0.18.1", default-features = false }
 steamworks = { git = "https://github.com/wazawoo/steamworks-rs", branch = "progresso", features = ["serde"] }
 
 [dev-dependencies]
-bevy = "0.17.2"
+bevy = "0.18.1"
